@@ -14,7 +14,7 @@ The feature we made is in the form of an ls flag -N which has a --d `X` flag tha
 * `make`
 * `sudo make install`
 
-`Thankyou to Patches on [SuperUser](https://superuser.com/questions/304943/how-can-i-install-a-more-modern-version-of-gnu-utils-coreutils-on-debian-linux) for describing this process for us.`
+<i>Thankyou to Patches on [SuperUser](https://superuser.com/questions/304943/how-can-i-install-a-more-modern-version-of-gnu-utils-coreutils-on-debian-linux) for describing this process for us.<i/>
 
 
 ## Further Reading / Useful Links
