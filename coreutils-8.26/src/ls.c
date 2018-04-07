@@ -1551,7 +1551,8 @@ main (int argc, char **argv)
                        && (recursive
                            || print_with_color
                            || indicator_style != none
-                           || directories_first));
+                           || directories_first
+                           || e_flag));
 
   if (dired)
     {
@@ -1758,6 +1759,8 @@ decode_switches (int argc, char **argv)
   print_inode = false;
   dereference = DEREF_UNDEFINED;
   recursive = false;
+  e_flag = false;
+  er_disabled = true;
   immediate_dirs = false;
   ignore_mode = IGNORE_DEFAULT;
   ignore_patterns = NULL;
@@ -1841,6 +1844,7 @@ decode_switches (int argc, char **argv)
           break;
 
         case 'e':
+          ignore_mode = IGNORE_DOT_AND_DOTDOT;
           e_flag = true;
           break;
 
@@ -1956,7 +1960,6 @@ decode_switches (int argc, char **argv)
           break;
         
         case 'E':
-          er_disabled = false;
           if(optarg)
             er_input = XARGMATCH(
               "--reach",
@@ -1964,6 +1967,9 @@ decode_switches (int argc, char **argv)
               e_chars,
               er_inputs
             );
+          if(!optarg)
+            er_input = 1;
+          er_disabled = false;
           break;
 
         case 'F':
@@ -2791,7 +2797,7 @@ print_dir (char const *name, char const *realname, bool command_line_arg)
 
   clear_files ();
 
-  if (recursive || print_dir_name)
+  if (e_flag || recursive || print_dir_name)
     {
       if (!first)
         DIRED_PUTCHAR ('\n');
@@ -2881,7 +2887,7 @@ print_dir (char const *name, char const *realname, bool command_line_arg)
   /* If any member files are subdirectories, perhaps they should have their
      contents listed rather than being mentioned here as files.  */
 
-  if (recursive)
+  if (recursive || e_flag)
     extract_dirs_from_files (name, false);
 
   if (format == long_format || print_block_size)
@@ -3866,6 +3872,7 @@ static void
 print_current_files (void)
 {
   size_t i;
+  size_t j;
 
   switch (format)
     {
@@ -3873,21 +3880,22 @@ print_current_files (void)
       //Need to finish, currently same as one_per_line for testing
       for (i = 0; i < cwd_n_used; i++)
         {
+          putchar('\t');
           if(((struct fileinfo*) sorted_file[i])->filetype == normal)
             {
               putchar('\t');
               putchar('|');
+              putchar(" ");
+              print_file_name_and_frills (sorted_file[i], 0);
             }
           if(((struct fileinfo*) sorted_file[i])->filetype == directory)
             {
               set_normal_color ();
-
-              putchar('\t');
               putchar('|');
               putchar('>');
+              print_file_name_and_frills (sorted_file[i], 0);
+              putchar ('\n');
             }
-          print_file_name_and_frills (sorted_file[i], 0);
-          putchar ('\n');
         }
       break;
 
