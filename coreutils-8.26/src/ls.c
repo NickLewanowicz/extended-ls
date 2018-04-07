@@ -433,27 +433,27 @@ enum format
     long_format,		/* -l and other options that imply -l */
     one_per_line,		/* -1 */
     many_per_line,  /* -C */
-    horizontal,			/* -x */
-    e_format,       /* -N */   
+    e_format,       /* -e */  
+    horizontal,			/* -x */ 
     with_commas			/* -m */
   };
 
-enum e_reach
+enum e_mapping
   {
-    e1,e2,e3
+    e1,e2,e3,e4
   };
 
-static enum e_mapping const e_input[]=
+static enum e_mapping const er_inputs[]=
   {
     e1,e2,e3
   };
 
 static char const *const e_chars[] =
-{
-  "1","2","3", NULL
-};
+  {
+    "1","2","3", NULL
+  };
 
-ARGMATCH_VERIFY(e_chars, e_input);
+ARGMATCH_VERIFY(e_chars, er_inputs);
 
 static enum format format;
 
@@ -1668,7 +1668,7 @@ main (int argc, char **argv)
 
   if (LOOP_DETECT)
     {
-      assert (hash_get_n_entries (active_dir_set) == 0);
+      //assert (hash_get_n_entries (active_dir_set) == 0);
       hash_free (active_dir_set);
     }
 
@@ -1958,12 +1958,12 @@ decode_switches (int argc, char **argv)
         case 'E':
           er_disabled = false;
           if(optarg)
-            e_input = XARGMATCH(
+            er_input = XARGMATCH(
               "--reach",
               optarg,
               e_chars,
-              e_input
-            )
+              er_inputs
+            );
           break;
 
         case 'F':
@@ -3563,7 +3563,7 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
                   c = strchr(c++, '/');
                 }
               }
-              if(!e_flag || (i != NULL && i < er_input)){
+              if(!e_flag || i < er_input){
                 char *name = file_name_concat (dirname, f->name, NULL);
                 queue_directory (name, f->linkname, command_line_arg);
                 free (name);
@@ -3873,6 +3873,19 @@ print_current_files (void)
       //Need to finish, currently same as one_per_line for testing
       for (i = 0; i < cwd_n_used; i++)
         {
+          if(((struct fileinfo*) sorted_file[i])->filetype == normal)
+            {
+              putchar('\t');
+              putchar('|');
+            }
+          if(((struct fileinfo*) sorted_file[i])->filetype == directory)
+            {
+              set_normal_color ();
+
+              putchar('\t');
+              putchar('|');
+              putchar('>');
+            }
           print_file_name_and_frills (sorted_file[i], 0);
           putchar ('\n');
         }
@@ -5158,7 +5171,7 @@ Sort entries alphabetically if none of -cftuvSUX nor --sort is specified.\n\
   -e                          list subdirectories in asethetically pleasing way\n\
       --reach=[level]         follows the e_format options and colors (default 1\
 \n\
-                               if omitted)
+                               if omitted)\n\
 "), stdout);
       fputs (_("\
   -f                         do not sort, enable -aU, disable -ls --color\n\
