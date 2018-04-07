@@ -406,14 +406,54 @@ static int file_size_width;
    -l (and other options that imply -l), -1, -C, -x and -m control
    this parameter.  */
 
+/* #COMP3000 - Added 3 state properties to manage the default behaviour:
+                - e_flag: is the custom flag activated
+                - er_disabled: was reach provided
+                - er_input: What was provided (default 1)
+
+   #COMP3000: - Added a format enum for use to reference because our
+   flag will be using custom formatting
+
+   #COMP3000: - Added a enum property for depth. We want to protect the
+   user so we arbitraily decided that a depth of 3 is adequate while
+   stopping them from accidentally printing their entire file system.
+
+  #COMP3000: - Needed to map enums to input from user, there is probably
+  a better way of doing this using literals but we just copied how it is 
+  done with below with `time-style` using ARGMATCH_VERIFY on 2 arrays
+   
+*/
+
+static bool e_flag = false;
+static bool er_disabled = true;
+static int  er_input = 1;
+
 enum format
   {
     long_format,		/* -l and other options that imply -l */
     one_per_line,		/* -1 */
-    many_per_line,		/* -C */
+    many_per_line,  /* -C */
     horizontal,			/* -x */
+    e_format,       /* -N */   
     with_commas			/* -m */
   };
+
+enum e_reach
+  {
+    e1,e2,e3
+  };
+
+static enum e_mapping const e_input[]=
+  {
+    e1,e2,e3
+  };
+
+static char const *const e_chars[] =
+{
+  "1","2","3", NULL
+};
+
+ARGMATCH_VERIFY(e_chars, e_input);
 
 static enum format format;
 
@@ -823,12 +863,18 @@ enum
   TIME_STYLE_OPTION
 };
 
+/* COMP3000: - This is an option mapping for extended -> e and reach->E
+   This essentially is copying what recursive does with their mapping.
+*/
+
 static struct option const long_options[] =
 {
   {"all", no_argument, NULL, 'a'},
   {"escape", no_argument, NULL, 'b'},
   {"directory", no_argument, NULL, 'd'},
   {"dired", no_argument, NULL, 'D'},
+  {"extended", no_argument, NULL, 'e'},
+  {"reach", optional_argument, NULL, 'E'},
   {"full-time", no_argument, NULL, FULL_TIME_OPTION},
   {"group-directories-first", no_argument, NULL,
    GROUP_DIRECTORIES_FIRST_OPTION},
@@ -1470,11 +1516,21 @@ main (int argc, char **argv)
                     || format == long_format)
                    ? DEREF_NEVER
                    : DEREF_COMMAND_LINE_SYMLINK_TO_DIR);
-
+  
   /* When using -R, initialize a data structure we'll use to
      detect any directory cycles.  */
-  if (recursive)
+  
+  /* COMP3000: - We will be piggy backing off the exsisting BL of -R 
+     in this case. This implementation has been battle tested and our
+     objective will not be modifying performance behind the curtains 
+     but instead just make the interface more aligned with our ideals
+  */
+
+  if (recursive || e_flag)
     {
+      if(e_flag){
+        format = e_format;
+      }
       active_dir_set = hash_initialize (INITIAL_TABLE_SIZE, NULL,
                                         dev_ino_hash,
                                         dev_ino_compare,
@@ -1749,11 +1805,19 @@ decode_switches (int argc, char **argv)
       }
   }
 
+  /* #COMP3000: - Within this infinite while loop is all the switch cases
+     for the ls options. We need to add e and E as the mappings to e and
+     --d respectively. 
+     #COMP3000: - e is the flag for extended which will enable the e_flag 
+     subsequently triggering the other logic in place to recurse ls
+     #COMP3000: - E is the option that represents --d which we mapped
+     earlier in the file. 
+  */
   while (true)
     {
       int oi = -1;
       int c = getopt_long (argc, argv,
-                           "abcdfghiklmnopqrstuvw:xABCDFGHI:LNQRST:UXZ1",
+                           "abcdefghiklmnopqrstuvw:xABCDEFGHI:LNQRST:UXZ1",
                            long_options, &oi);
       if (c == -1)
         break;
@@ -1774,6 +1838,10 @@ decode_switches (int argc, char **argv)
 
         case 'd':
           immediate_dirs = true;
+          break;
+
+        case 'e':
+          e_flag = true;
           break;
 
         case 'f':
@@ -1885,6 +1953,17 @@ decode_switches (int argc, char **argv)
 
         case 'D':
           dired = true;
+          break;
+        
+        case 'E':
+          er_disabled = false;
+          if(optarg)
+            e_input = XARGMATCH(
+              "--reach",
+              optarg,
+              e_chars,
+              e_input
+            )
           break;
 
         case 'F':
@@ -3451,6 +3530,19 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
 
   /* Queue the directories last one first, because queueing reverses the
      order.  */
+
+  /* #COMP3000: - Ummm okay this was kinda messed up to understand but Ill
+     try to explain...
+     Basically this whole for loop will walk through the files and directories
+     to be displayed inside the ls output. In the case its a directory we want
+     recurse that and the while loop will keep moving down the dir path until
+     it terminates.
+
+     The wierd conditional on #LINE will be incharge of getting the string to 
+     print in the general use of ls and its recursive calls.
+
+    This concludes the horrible description of this code... srry
+  */
   for (i = cwd_n_used; i-- != 0; )
     {
       struct fileinfo *f = sorted_file[i];
@@ -3463,9 +3555,19 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
             queue_directory (f->name, f->linkname, command_line_arg);
           else
             {
-              char *name = file_name_concat (dirname, f->name, NULL);
-              queue_directory (name, f->linkname, command_line_arg);
-              free (name);
+              if(e_flag){
+                int i = 0;
+                char* c = strchr(dirname, '/');
+                while(c != NULL){
+                  i++;
+                  c = strchr(c++, '/');
+                }
+              }
+              if(!e_flag || (i != NULL && i < er_input)){
+                char *name = file_name_concat (dirname, f->name, NULL);
+                queue_directory (name, f->linkname, command_line_arg);
+                free (name);
+              }
             }
           if (f->filetype == arg_directory)
             free_ent (f);
@@ -3755,6 +3857,11 @@ sort_files (void)
 
 /* List all the files now in the table.  */
 
+/* COMP3000: -This is where the magic happens. This formatting will 
+   Hopefully lead to better contrast of dir and files and separation
+   of local files and sub dir files.
+*/
+
 static void
 print_current_files (void)
 {
@@ -3762,6 +3869,15 @@ print_current_files (void)
 
   switch (format)
     {
+    case e_format:
+      //Need to finish, currently same as one_per_line for testing
+      for (i = 0; i < cwd_n_used; i++)
+        {
+          print_file_name_and_frills (sorted_file[i], 0);
+          putchar ('\n');
+        }
+      break;
+
     case one_per_line:
       for (i = 0; i < cwd_n_used; i++)
         {
@@ -5037,6 +5153,12 @@ Sort entries alphabetically if none of -cftuvSUX nor --sort is specified.\n\
 \n\
   -d, --directory            list directories themselves, not their contents\n\
   -D, --dired                generate output designed for Emacs' dired mode\n\
+"), stdout);
+      fputs (_("\
+  -e                          list subdirectories in asethetically pleasing way\n\
+      --reach=[level]         follows the e_format options and colors (default 1\
+\n\
+                               if omitted)
 "), stdout);
       fputs (_("\
   -f                         do not sort, enable -aU, disable -ls --color\n\
