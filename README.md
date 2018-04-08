@@ -1,4 +1,4 @@
-# ls-additions-X
+# extended-ls
 
 This repo contains some modifications to ls inside of coreUtils-8.26 and is known to work on Ubuntu 16.04 LTS 32 bit. The objective of these modifications were to gain a better understanding of the linux operating system (in particular coreUtils) and use that knowledge to build a new feature into the known and loved package.
 
