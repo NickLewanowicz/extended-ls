@@ -3562,14 +3562,14 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
           else
             {
               if(e_flag){
-                int i = 0;
+                int j = 0;
                 char* c = strchr(dirname, '/');
                 while(c != NULL){
-                  i++;
+                  j++;
                   c = strchr(c++, '/');
                 }
               }
-              if(!e_flag || i < er_input){
+              if(!e_flag || j < er_input){
                 char *name = file_name_concat (dirname, f->name, NULL);
                 queue_directory (name, f->linkname, command_line_arg);
                 free (name);
