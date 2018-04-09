@@ -10,7 +10,6 @@ The feature we made is in the form of an ls flag -e which has a --reach `X` flag
 * `git clone <repository-url>` this repository
 * `cd extended-ls`
 * `source ./install`
-<i>Thankyou to Patches on [SuperUser](https://superuser.com/questions/304943/how-can-i-install-a-more-modern-version-of-gnu-utils-coreutils-on-debian-linux) for describing this process for us.<i/>
 
 
 ## Further Reading / Useful Links
