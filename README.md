@@ -8,12 +8,8 @@ The feature we made is in the form of an ls flag -e which has a --reach `X` flag
 ## Installation
 
 * `git clone <repository-url>` this repository
-* `cd improved-ls-linux/coreutils-8.26`
-* `./configure prefix=/home/{username}/coreutils`
-* `PATH="$HOME/coreutils/bin:$PATH"`
-* `make`
-* `sudo make install`
-
+* `cd extended-ls`
+* `source ./install`
 <i>Thankyou to Patches on [SuperUser](https://superuser.com/questions/304943/how-can-i-install-a-more-modern-version-of-gnu-utils-coreutils-on-debian-linux) for describing this process for us.<i/>
 
 

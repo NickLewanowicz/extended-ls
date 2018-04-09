@@ -1,0 +1,7 @@
+#!/bin/sh
+cd coreutils-8.26
+./configure prefix=/home/$USER/coreutils
+PATH=$HOME/coreutils/bin:$PATH
+export PATH
+make
+sudo make install
