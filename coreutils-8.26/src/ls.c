@@ -3549,9 +3549,8 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
 
     This concludes the horrible description of this code... srry
   */
-  for (i = cwd_n_used; i-- != 0; )
+  for (i = cwd_n_used; i != 0; i-- )
     {
-      int j = 0;
       struct fileinfo *f = sorted_file[i];
 
       if (is_directory (f)
@@ -3562,15 +3561,16 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
             queue_directory (f->name, f->linkname, command_line_arg);
           else
             {
+              int s = 0;
               if(e_flag){
                 
                 char* c = strchr(dirname, '/');
                 while(c != NULL){
-                  j++;
-                  c = strchr(c++, '/');
+                  s++;
+                  c = strchr(c+1, '/');
                 }
               }
-              if(!e_flag || j < er_input){
+              if(!e_flag || s < er_input){
                 char *name = file_name_concat (dirname, f->name, NULL);
                 queue_directory (name, f->linkname, command_line_arg);
                 free (name);
