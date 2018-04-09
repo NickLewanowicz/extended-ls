@@ -3551,6 +3551,7 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
   */
   for (i = cwd_n_used; i-- != 0; )
     {
+      int j = 0;
       struct fileinfo *f = sorted_file[i];
 
       if (is_directory (f)
@@ -3562,7 +3563,7 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
           else
             {
               if(e_flag){
-                int j = 0;
+                
                 char* c = strchr(dirname, '/');
                 while(c != NULL){
                   j++;
