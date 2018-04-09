@@ -3894,8 +3894,9 @@ print_current_files (void)
               putchar('>');
               print_file_name_and_frills (sorted_file[i], 0);
             }
+            putchar ('\n');
         }
-      putchar ('\n');
+      
       break;
 
     case one_per_line:
