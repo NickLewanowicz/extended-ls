@@ -3885,7 +3885,6 @@ print_current_files (void)
             {
               putchar('\t');
               putchar('|');
-              putchar(" ");
               print_file_name_and_frills (sorted_file[i], 0);
             }
           if(((struct fileinfo*) sorted_file[i])->filetype == directory)
@@ -3894,9 +3893,9 @@ print_current_files (void)
               putchar('|');
               putchar('>');
               print_file_name_and_frills (sorted_file[i], 0);
-              putchar ('\n');
             }
         }
+      putchar ('\n');
       break;
 
     case one_per_line:
