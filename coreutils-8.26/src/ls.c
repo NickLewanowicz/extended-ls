@@ -3884,8 +3884,8 @@ print_current_files (void)
           putchar('\t');
           if(((struct fileinfo*) sorted_file[i])->filetype == normal)
             {
-              putchar('\t');
               putchar('|');
+              putchar(' ');
               print_file_name_and_frills (sorted_file[i], 0);
             }
           if(((struct fileinfo*) sorted_file[i])->filetype == directory)
