@@ -1813,10 +1813,10 @@ decode_switches (int argc, char **argv)
 
   /* #COMP3000: - Within this infinite while loop is all the switch cases
      for the ls options. We need to add e and E as the mappings to e and
-     --d respectively. 
+     --reach respectively. 
      #COMP3000: - e is the flag for extended which will enable the e_flag 
      subsequently triggering the other logic in place to recurse ls
-     #COMP3000: - E is the option that represents --d which we mapped
+     #COMP3000: - E is the option that represents --reach which we mapped
      earlier in the file. 
   */
   while (true)
@@ -3557,7 +3557,7 @@ extract_dirs_from_files (char const *dirname, bool command_line_arg)
      recurse that and the while loop will keep moving down the dir path until
      it terminates.
 
-     The wierd conditional on #LINE will be incharge of getting the string to 
+     The wierd conditional on #3586 will be incharge of getting the string to 
      print in the general use of ls and its recursive calls.
 
     This concludes the horrible description of this code... srry
