@@ -427,6 +427,7 @@ static int file_size_width;
 static bool e_flag = false;
 static bool er_disabled = true;
 static int  er_input = 1;
+static char  mr_input = 100;
 
 enum format
   {
@@ -454,6 +455,7 @@ static char const *const e_chars[] =
   };
 
 ARGMATCH_VERIFY(e_chars, er_inputs);
+
 
 static enum format format;
 
@@ -875,6 +877,7 @@ static struct option const long_options[] =
   {"dired", no_argument, NULL, 'D'},
   {"extended", no_argument, NULL, 'e'},
   {"reach", optional_argument, NULL, 'E'},
+  {"max", optional_argument, NULL, 'J'},
   {"full-time", no_argument, NULL, FULL_TIME_OPTION},
   {"group-directories-first", no_argument, NULL,
    GROUP_DIRECTORIES_FIRST_OPTION},
@@ -1820,7 +1823,7 @@ decode_switches (int argc, char **argv)
     {
       int oi = -1;
       int c = getopt_long (argc, argv,
-                           "abcdefghiklmnopqrstuvw:xABCDEFGHI:LNQRST:UXZ1",
+                           "abcdefghiklmnopqrstuvw:xABCDEFGHIJ:LNQRST:UXZ1",
                            long_options, &oi);
       if (c == -1)
         break;
@@ -1990,6 +1993,16 @@ decode_switches (int argc, char **argv)
 
         case 'I':
           add_ignore_pattern (optarg);
+          break;
+
+        case 'J':
+          if(optarg){
+            mr_input = optarg;
+          }
+          printf(optarg);
+          if(!optarg)
+            mr_input = 100;
+          er_disabled = false;
           break;
 
         case 'L':
@@ -3896,7 +3909,15 @@ print_current_files (void)
               print_file_name_and_frills (sorted_file[i], 0);
             }
             putchar ('\n');
+            // if(i>mr_input*10){
+            //   putchar ('.');
+            //   putchar ('.');
+            //   putchar ('.');
+            //   putchar ('\n');
+            //   break;
+            // }
         }
+        
       
       break;
 
