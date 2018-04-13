@@ -9,6 +9,7 @@ The feature we made is in the form of an ls flag -e which has a --reach `X` flag
 
 * `git clone <repository-url>` this repository
 * `cd extended-ls`
+* `sudo apt-get install automake autotools-dev texinfo`
 * `source ./install`
 
 
