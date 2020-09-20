@@ -4,7 +4,7 @@ This repo contains some modifications to ls inside of coreUtils-8.26 and is know
 
 The feature we made is in the form of an ls flag -e which has a --reach `X` flag that will recurse your ls command X times. The installation of which follows.
 
-
+[Full documentation of the implementation process available here.](https://docs.google.com/document/d/100poTkgIc0kR0Jgu00ALAiLU4pzcvBpD3MihMmu3E1s/edit?usp=sharing)
 ## Installation
 
 * `git clone <repository-url>` this repository
